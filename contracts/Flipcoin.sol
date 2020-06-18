@@ -1,10 +1,10 @@
-pragma solidity 0.5.0;
+pragma solidity 0.6.1;
 
+import "@openzeppelin/contracts/math/SaFeMath.sol";
+import "./Ownable.sol";
 
-import "./SafeMath.sol";
-
-contract Coinflip is SafeMath  {
-   
+contract Coinflip {
+    using SafeMath for uint256;
     uint256 public consecutiveWins;
     uint256 lastHash;
     uint256 FACTOR = 57896044618658097711785492504343953926634992332820282019728792003956564819968;
@@ -18,9 +18,12 @@ contract Coinflip is SafeMath  {
 
     event betTaken(address indexed player, bytes32 Id, uint value, bool total);
     event betPlaced(address indexed player,bytes32 queryId, uint value);
+    event contractFunded(address contractOwner, uint funding);
 
     mapping (bytes32 => placeBet) public betting;
     mapping (address => bool) public waiting;
+
+    
 
     constructor() public {
         consecutiveWins = 0;
@@ -41,6 +44,8 @@ contract Coinflip is SafeMath  {
         if (lastHash == blockValue) {
             revert();
         }
+
+    
 
         lastHash = blockValue;
         uint256 coinflip = uint256(keccak256(abi.encodePacked(blockValue))) % 2;
